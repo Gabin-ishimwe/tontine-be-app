@@ -7,14 +7,39 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+// User Model
 model User {
   id        Int      @id @default(autoincrement())
   username  String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  pool      Pool     @relation(fields: [poolId], references: [id])
+  poolId    String
 }
 
-model Post {
-  id   Int    @id @default(autoincrement())
-  name String
+// Pool Model
+model Pool {
+  id                  String    @id @default(uuid())
+  title               String    @unique
+  description         String
+  category            String
+  amountPerSprint     Int
+  sprintTime          DateTime? // contribution time
+  cycleTime           DateTime? // Withdrawal time
+  numberOfParticipant Int       @default(3)
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+  wallet              Wallet?
+  members             User[]
+}
+
+// Wallet Model
+model Wallet {
+  accountNumber String   @id @unique @default(uuid())
+  isActive      Boolean  @default(false)
+  amount        BigInt
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  pool          Pool     @relation(fields: [poolId], references: [id])
+  poolId        String   @unique
 }
