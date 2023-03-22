@@ -25,7 +25,9 @@ model Pool {
   category            String
   amountPerSprint     Int
   sprintTime          DateTime? // contribution time
+  sprintTimeType String?
   cycleTime           DateTime? // Withdrawal time
+  cycleTimeType String?
   numberOfParticipant Int       @default(3)
   createdAt           DateTime  @default(now())
   updatedAt           DateTime  @updatedAt
@@ -42,4 +44,10 @@ model Wallet {
   updatedAt     DateTime @updatedAt
   pool          Pool     @relation(fields: [poolId], references: [id])
   poolId        String   @unique
+}
+
+enum TimeType {
+  DAYS
+  WEEKS
+  MONTHS
 }

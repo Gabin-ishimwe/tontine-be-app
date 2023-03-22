@@ -11,7 +11,10 @@ import { CreatePoolDto } from './dto/create-pool.dto';
 import { UpdatePoolDto } from './dto/update-pool.dto';
 import { PoolService } from './pool.service';
 
-@Controller('pool')
+@Controller({
+  path: 'pool',
+  version: '1',
+})
 export class PoolController {
   constructor(private readonly poolService: PoolService) {}
 
