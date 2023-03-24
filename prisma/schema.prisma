@@ -24,10 +24,10 @@ model Pool {
   description         String
   category            String
   amountPerSprint     Int
-  sprintTime          DateTime? // contribution time
-  sprintTimeType String?
-  cycleTime           DateTime? // Withdrawal time
-  cycleTimeType String?
+  sprintTime          String // contribution time
+  sprintTimeType      String
+  cycleTime           String? // Withdrawal time
+  cycleTimeType       String? 
   numberOfParticipant Int       @default(3)
   createdAt           DateTime  @default(now())
   updatedAt           DateTime  @updatedAt
@@ -39,7 +39,7 @@ model Pool {
 model Wallet {
   accountNumber String   @id @unique @default(uuid())
   isActive      Boolean  @default(false)
-  amount        BigInt
+  amount        Int
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
   pool          Pool     @relation(fields: [poolId], references: [id])

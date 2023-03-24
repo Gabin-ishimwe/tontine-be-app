@@ -1,46 +1,34 @@
-import { Injectable } from '@nestjs/common';
-import { PrismaService } from 'src/prisma/prisma.service';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { CreatePoolDto } from './dto/create-pool.dto';
 import { UpdatePoolDto } from './dto/update-pool.dto';
+import { PoolRepository } from './pool.repository';
 
 @Injectable()
 export class PoolService {
-  constructor(private prismaService: PrismaService) {}
+  constructor(private poolRepository: PoolRepository) {}
 
   async create(createPoolDto: CreatePoolDto) {
     try {
       const {
-        title,
-        description,
-        category,
-        amountPerSprint,
         sprintTime,
+        sprintTimeType,
         cycleTime,
+        cycleTimeType,
         numberOfParticipant,
       } = createPoolDto;
-
-      const sprintChange = new Date(sprintTime).toLocaleTimeString;
-      const cycleChange = new Date(cycleTime);
-      const pool = await this.prismaService.pool.create({
-        data: {
-          title,
-          description,
-          category,
-          amountPerSprint,
-          numberOfParticipant,
-          wallet: {
-            create: {
-              amount: 0,
-            },
-          },
-        },
-      });
+      const pool = await this.poolRepository.createPool(createPoolDto);
       return pool;
-    } catch (error) {}
+    } catch (error) {
+      return new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
   }
 
-  findAll() {
-    return `This action returns all pool`;
+  async findAll() {
+    try {
+      return await this.poolRepository.findAllPool();
+    } catch (error) {
+      return new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
   }
 
   findOne(id: number) {
