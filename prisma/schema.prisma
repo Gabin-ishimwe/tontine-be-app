@@ -24,15 +24,17 @@ model Pool {
   description         String
   category            String
   amountPerSprint     Int
-  sprintTime          String // contribution time
+  sprintTime          Int // contribution time
   sprintTimeType      String
   cycleTime           String? // Withdrawal time
   cycleTimeType       String? 
-  numberOfParticipant Int       @default(3)
+  numberOfParticipants Int       @default(3)
   createdAt           DateTime  @default(now())
   updatedAt           DateTime  @updatedAt
   wallet              Wallet?
   members             User[]
+
+  @@index([id, title])
 }
 
 // Wallet Model
@@ -42,8 +44,10 @@ model Wallet {
   amount        Int
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
-  pool          Pool     @relation(fields: [poolId], references: [id])
+  pool          Pool     @relation(fields: [poolId], references: [id], onDelete: Cascade)
   poolId        String   @unique
+
+  @@index([accountNumber])
 }
 
 enum TimeType {

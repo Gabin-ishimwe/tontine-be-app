@@ -36,4 +36,8 @@ export class WalletService {
   remove(id: number) {
     return `This action removes a #${id} wallet`;
   }
+
+  async deleteAll() {
+    return await this.prismaService.wallet.deleteMany();
+  }
 }

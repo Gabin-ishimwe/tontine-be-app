@@ -9,7 +9,7 @@ export class WalletRepository {
 
   async findAllWallet() {
     try {
-      return this.prismaService.wallet.findMany();
+      return this.prismaService.wallet.findMany({ include: { pool: true } });
     } catch (error) {
       return new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
     }

@@ -28,6 +28,11 @@ export class WalletController {
     return this.walletService.findAll();
   }
 
+  @Delete()
+  async removeWallet() {
+    return await this.walletService.deleteAll();
+  }
+
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.walletService.findOne(+id);
@@ -38,8 +43,8 @@ export class WalletController {
     return this.walletService.update(+id, updateWalletDto);
   }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.walletService.remove(+id);
-  }
+  // @Delete(':id')
+  // remove(@Param('id') id: string) {
+  //   return this.walletService.remove(+id);
+  // }
 }

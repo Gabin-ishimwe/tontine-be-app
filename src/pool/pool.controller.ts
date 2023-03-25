@@ -4,6 +4,7 @@ import {
   Delete,
   Get,
   Param,
+  ParseUUIDPipe,
   Patch,
   Post,
 } from '@nestjs/common';
@@ -25,12 +26,12 @@ export class PoolController {
 
   @Get()
   findAll() {
-    return this.poolService.findAll();
+    return this.poolService.findAllPool();
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.poolService.findOne(+id);
+  findOne(@Param('id', ParseUUIDPipe) id: string) {
+    return this.poolService.findOnePool(id);
   }
 
   @Patch(':id')
@@ -39,7 +40,12 @@ export class PoolController {
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.poolService.remove(+id);
+  deleteOnePool(@Param('id', ParseUUIDPipe) id: string) {
+    return this.poolService.deleteOnePool(id);
+  }
+
+  @Delete()
+  remove() {
+    return this.poolService.deleteAllPool();
   }
 }

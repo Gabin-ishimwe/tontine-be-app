@@ -1,4 +1,5 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { computeCycleTime } from 'src/helpers/pool.helper';
 import { CreatePoolDto } from './dto/create-pool.dto';
 import { UpdatePoolDto } from './dto/update-pool.dto';
 import { PoolRepository } from './pool.repository';
@@ -9,13 +10,16 @@ export class PoolService {
 
   async create(createPoolDto: CreatePoolDto) {
     try {
-      const {
+      const { sprintTime, sprintTimeType, numberOfParticipants } =
+        createPoolDto;
+      const computePoolCycle = computeCycleTime({
         sprintTime,
         sprintTimeType,
-        cycleTime,
-        cycleTimeType,
-        numberOfParticipant,
-      } = createPoolDto;
+        numberOfParticipants,
+      });
+
+      createPoolDto.cycleTime = computePoolCycle.cycleTime.toString();
+      createPoolDto.cycleTimeType = computePoolCycle.cycleTimeType;
       const pool = await this.poolRepository.createPool(createPoolDto);
       return pool;
     } catch (error) {
@@ -23,7 +27,14 @@ export class PoolService {
     }
   }
 
-  async findAll() {
+  async findOnePool(id: string) {
+    try {
+      return await this.poolRepository.findOnePool(id);
+    } catch (error) {
+      return new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
+  async findAllPool() {
     try {
       return await this.poolRepository.findAllPool();
     } catch (error) {
@@ -31,15 +42,19 @@ export class PoolService {
     }
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} pool`;
-  }
-
   update(id: number, updatePoolDto: UpdatePoolDto) {
     return `This action updates a #${id} pool`;
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} pool`;
+  async deleteOnePool(id: string) {
+    try {
+      return await this.poolRepository.deleteOnePool(id);
+    } catch (error) {
+      return new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
+
+  async deleteAllPool() {
+    return await this.poolRepository.deleteAllPool();
   }
 }

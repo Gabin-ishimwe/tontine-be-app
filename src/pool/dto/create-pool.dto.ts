@@ -1,6 +1,4 @@
 import {
-  IsDate,
-  IsDateString,
   IsEnum,
   IsInt,
   IsNotEmpty,
@@ -8,7 +6,6 @@ import {
   IsOptional,
   IsString,
   Min,
-  MinDate,
 } from 'class-validator';
 
 export enum TimeType {
@@ -35,15 +32,17 @@ export class CreatePoolDto {
   amountPerSprint: number;
 
   @IsNotEmpty()
-  @IsDateString()
-  sprintTime: string;
+  // @IsDateString()
+  @IsNumber()
+  sprintTime: number;
 
   @IsString()
   @IsNotEmpty()
   @IsEnum(TimeType)
-  sprintTimeType: string;
+  sprintTimeType: TimeType;
 
-  @IsDateString()
+  // @IsDateString()
+  @IsString()
   @IsOptional()
   cycleTime: string;
 
@@ -55,5 +54,5 @@ export class CreatePoolDto {
   @IsNumber()
   @IsNotEmpty()
   @Min(3)
-  numberOfParticipant: number;
+  numberOfParticipants: number;
 }
