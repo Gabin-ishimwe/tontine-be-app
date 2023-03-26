@@ -1,5 +1,6 @@
 import { HttpException, HttpStatus, NotFoundException } from '@nestjs/common';
 import { Injectable } from '@nestjs/common/decorators';
+import { Pools } from '@prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreatePoolDto } from './dto/create-pool.dto';
 
@@ -9,7 +10,7 @@ export class PoolRepository {
 
   async createPool(createPool: CreatePoolDto) {
     try {
-      return await this.prismaService.pool.create({
+      return await this.prismaService.pools.create({
         data: {
           ...createPool,
           wallet: {
@@ -24,21 +25,32 @@ export class PoolRepository {
     }
   }
 
-  async findOnePool(id: string) {
+  async updateOnePool(id: string, data: any) {
     try {
-      const data = await this.prismaService.pool.findUnique({ where: { id } });
+      return await this.prismaService.pools.update({ where: { id }, data });
+    } catch (error) {
+      return new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
+
+  async findOnePool(id: string): Promise<any | Pools> {
+    try {
+      const data = await this.prismaService.pools.findUnique({
+        where: { id },
+        include: { wallet: true, invitedMembers: true, members: true },
+      });
       if (!data) return new NotFoundException({ message: 'Pool not found' });
+
       return data;
     } catch (error) {
-      console.log(error);
       return new HttpException(error.message, HttpStatus.NOT_FOUND);
     }
   }
 
   async findAllPool() {
     try {
-      return await this.prismaService.pool.findMany({
-        include: { wallet: true, members: true },
+      return await this.prismaService.pools.findMany({
+        include: { wallet: true, members: true, invitedMembers: true },
       });
     } catch (error) {
       return new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
@@ -47,7 +59,7 @@ export class PoolRepository {
 
   async deleteOnePool(id: string) {
     try {
-      return await this.prismaService.pool.delete({ where: { id } });
+      return await this.prismaService.pools.delete({ where: { id } });
     } catch (error) {
       return new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
     }
@@ -55,7 +67,7 @@ export class PoolRepository {
 
   async deleteAllPool() {
     try {
-      return await this.prismaService.pool.deleteMany();
+      return await this.prismaService.pools.deleteMany();
     } catch (error) {
       return new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
     }

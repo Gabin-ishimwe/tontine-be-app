@@ -12,13 +12,12 @@ export class WalletService {
   ) {}
 
   create(createWalletDto: CreateWalletDto) {
-    // return this.prismaService.wallet.create({
-    //   data: {
-    //     amount: createWalletDto.amount,
-    //     poolId: createWalletDto.poolId,
-    //   },
-    // });
-    return '';
+    return this.prismaService.wallets.create({
+      data: {
+        amount: createWalletDto.amount,
+        poolId: createWalletDto.poolId,
+      },
+    });
   }
 
   findAll() {
@@ -38,6 +37,6 @@ export class WalletService {
   }
 
   async deleteAll() {
-    return await this.prismaService.wallet.deleteMany();
+    return await this.prismaService.wallets.deleteMany();
   }
 }

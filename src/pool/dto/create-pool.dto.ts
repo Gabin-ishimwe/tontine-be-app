@@ -1,4 +1,5 @@
 import {
+  IsDateString,
   IsEnum,
   IsInt,
   IsNotEmpty,
@@ -32,7 +33,6 @@ export class CreatePoolDto {
   amountPerSprint: number;
 
   @IsNotEmpty()
-  // @IsDateString()
   @IsNumber()
   sprintTime: number;
 
@@ -55,4 +55,8 @@ export class CreatePoolDto {
   @IsNotEmpty()
   @Min(3)
   numberOfParticipants: number;
+
+  @IsDateString()
+  @IsNotEmpty()
+  expectedStartTime: string;
 }

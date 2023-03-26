@@ -24,6 +24,11 @@ export class PoolController {
     return this.poolService.create(createPoolDto);
   }
 
+  @Post('/activate/:id')
+  activate(@Param('id', ParseUUIDPipe) id: string) {
+    return this.poolService.activatePool(id);
+  }
+
   @Get()
   findAll() {
     return this.poolService.findAllPool();
@@ -35,8 +40,11 @@ export class PoolController {
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updatePoolDto: UpdatePoolDto) {
-    return this.poolService.update(+id, updatePoolDto);
+  updatePool(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() updatePoolDto: UpdatePoolDto,
+  ) {
+    return this.poolService.updatePool(id, updatePoolDto);
   }
 
   @Delete(':id')

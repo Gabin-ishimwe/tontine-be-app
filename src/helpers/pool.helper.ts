@@ -14,6 +14,8 @@ import { TimeType } from 'src/pool/dto/create-pool.dto';
 // 1.5 weeks => 1 week 5 days
 // 1.6 weeks => 1 week 6 days
 // 1.7 weeks => 1 week 7 days => 2 weeks
+// 1.8 weeks => 2 weeks 1 day
+// 1.9 weeks => 2 weeks 2 days
 
 // months computation
 // 1.1 months => 1 month 1 week
@@ -66,6 +68,7 @@ export const computeCycleTime = (
       }
       break;
 
+    // TODO: revise this logic on cycle time of months
     // case TimeType.MONTHS:
     //   cycleTime = sprintTime * numberOfParticipants;
     //   if (cycleTime > 12) {
