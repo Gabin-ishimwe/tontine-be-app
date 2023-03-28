@@ -11,6 +11,7 @@ import {
   Post,
   Query,
   UnauthorizedException,
+  UseGuards,
   ValidationPipe,
 } from '@nestjs/common';
 import { isAlphanumeric, isEmail } from 'class-validator';
@@ -22,6 +23,7 @@ import { LoginUserDto } from './dto/login-user.dto';
 import { UpdateProfileDto } from './dto/update-profile.dto';
 import { VerifyUserDto } from './dto/verify-user.dto';
 import { AuthUser } from './users.decorator';
+import { IsAdmin } from './users.guard';
 import { UsersService } from './users.service';
 
 @Controller({ path: 'users', version: '1' })
@@ -68,7 +70,7 @@ export class UsersController {
       );
     }
     //Generating auth token
-    const token = generateToken(user.id);
+    const token = generateToken(user.id, user.role);
     //Responding user and token
     return {
       message: 'User logged in successfully',
@@ -105,6 +107,7 @@ export class UsersController {
   }
 
   @Get()
+  @UseGuards(IsAdmin)
   async findAll(): Promise<AppResponse> {
     const users = await this.usersService.findAll();
     return {
@@ -135,7 +138,9 @@ export class UsersController {
     @AuthUser() userId: string,
   ): Promise<AppResponse> {
     if (userId !== id) {
-      throw new UnauthorizedException('Invalid user id');
+      throw new UnauthorizedException(
+        'Invalid user id, you can view only your own info',
+      );
     }
     return {
       message: 'User retrieved successfully',
@@ -180,7 +185,9 @@ export class UsersController {
     @AuthUser() userId: string,
   ): Promise<AppResponse> {
     if (userId !== id) {
-      throw new UnauthorizedException('Invalid user id');
+      throw new UnauthorizedException(
+        'Invalid user id, you can`t delete other user`s account',
+      );
     }
     const data = await this.usersService.delete(id);
     return { message: 'User deleted successfully', data };

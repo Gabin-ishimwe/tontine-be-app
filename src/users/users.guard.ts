@@ -2,31 +2,42 @@ import {
   BadRequestException,
   CanActivate,
   ExecutionContext,
+  ForbiddenException,
   Injectable,
+  UnauthorizedException,
 } from '@nestjs/common';
-import { isAlphanumeric, isString, length } from 'class-validator';
+import { Role } from '@prisma/client';
 import { Observable } from 'rxjs';
+import { verifyToken } from 'src/helpers/security';
 
 @Injectable()
-export class UpdateProfileGuard implements CanActivate {
+export class IsAdmin implements CanActivate {
   canActivate(
     context: ExecutionContext,
   ): boolean | Promise<boolean> | Observable<boolean> {
     const req: Request = context.switchToHttp().getRequest();
-    let message: string = 'invalid';
-    const { username, image, about } = req.body as any;
-    if (username && (!isAlphanumeric(username) || !length(username, 5, 20))) {
-      message += ' username';
+    if (!req.headers['authorization']) {
+      throw new ForbiddenException('User not logged in');
     }
-    if (image && (!isString(image) || !length(image, 5))) {
-      message += ', image';
+
+    try {
+      const { userId, role } = verifyToken(
+        req.headers['authorization'].split(' ')[1],
+      );
+      if (userId && role === Role.ADMIN) {
+        return true;
+      } else {
+        throw new UnauthorizedException(
+          "Unauthorized action, you're not an admin",
+        );
+      }
+    } catch (error) {
+      if (error.status === 401) {
+        throw error;
+      }
+      throw new BadRequestException(
+        'Invalid or expired auth token detected, login again',
+      );
     }
-    if (about && (!isString(about) || !length(about, 3, 100))) {
-      message += ', about format';
-    }
-    if (message !== 'invalid') {
-      throw new BadRequestException(message);
-    }
-    return true;
   }
 }

@@ -15,6 +15,7 @@ model User {
   phone     String
   verified  Boolean  @default(false)
   role      Role     @default(USER)
+  status    Status   @default(ACTIVE)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   profile   Profile?
@@ -24,6 +25,12 @@ model User {
 enum Role {
   USER
   ADMIN
+}
+
+enum Status {
+  ACTIVE
+  BANNED
+  DELETED
 }
 
 model Bank {

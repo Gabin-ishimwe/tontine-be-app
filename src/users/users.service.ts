@@ -28,6 +28,7 @@ export class UsersService {
           email: createUserDto.email,
           password: pwd,
           phone: createUserDto.phone,
+          role: createUserDto.role,
           bank: {
             create: {
               firstName: createUserDto.firstName,
@@ -57,6 +58,7 @@ export class UsersService {
       where: { verified: true },
       orderBy: { createdAt: 'desc' },
       select: {
+        id: true,
         email: true,
         phone: true,
         profile: { select: { username: true, image: true } },

@@ -1,3 +1,4 @@
+import { Role } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
 import * as dotenv from 'dotenv';
 import * as jwt from 'jsonwebtoken';
@@ -16,9 +17,9 @@ export const comparePwd = async (bodyPwd: string, dbPwd: string) => {
 };
 
 //Generate token
-export const generateToken = (id: string) => {
+export const generateToken = (id: string, role: Role) => {
   const secret = process.env.JWT_TOKEN_SECRET || 'tontino-jwt-secret';
-  return jwt.sign({ userId: id  }, secret, {
+  return jwt.sign({ userId: id, role }, secret, {
     expiresIn: '5 days',
   });
 };
