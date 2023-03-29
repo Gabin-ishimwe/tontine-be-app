@@ -5,7 +5,7 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { Profile, TempOTP, User } from '@prisma/client';
+import { Profile, Role, TempOTP, User } from '@prisma/client';
 import { deleteImageTask, uploadImage } from 'src/helpers/cloudinary/upload';
 import { deleteOtpTask } from 'src/helpers/otp/delete_otp';
 import { otpCron } from 'src/helpers/otp/generate_otp';
@@ -28,7 +28,6 @@ export class UsersService {
           email: createUserDto.email,
           password: pwd,
           phone: createUserDto.phone,
-          role: createUserDto.role,
           bank: {
             create: {
               firstName: createUserDto.firstName,
@@ -61,6 +60,8 @@ export class UsersService {
         id: true,
         email: true,
         phone: true,
+        verified: true,
+        role: true,
         profile: { select: { username: true, image: true } },
       },
     });
@@ -117,34 +118,33 @@ export class UsersService {
     }
   }
 
-  async resendOTP(email: string): Promise<User> {
+  async resendOTP(email: string) {
     try {
-      const otp = await this.prismaService.tempOTP.findFirst({
-        where: { email },
+      const user = await this.prismaService.user.findFirst({
+        where: { email, verified: false },
+        include: {
+          tempOTP: { select: { otp: true } },
+          bank: { select: { firstName: true, lastName: true } },
+        },
       });
-
-      if (!otp) {
-        const user = await this.prismaService.user.findFirst({
-          where: { email, verified: false },
+      if (user?.tempOTP?.otp) {
+        sendEmail({
+          email,
+          firstName: user.bank.firstName,
+          lastName: user.bank.firstName,
+          otp: user.tempOTP.otp,
         });
+      } else {
         if (!user) {
           throw new NotFoundException(
             'Resend failed, account already verified or does no longer exist',
           );
         }
         otpCron({
-          firstName: user.email,
-          lastName: user.phone,
-          email,
+          firstName: user.bank.firstName,
+          lastName: user.bank.firstName,
+          email: user.email,
         }).start();
-        return user;
-      } else {
-        sendEmail({
-          email,
-          firstName: '',
-          lastName: '',
-          otp: otp.otp,
-        });
       }
     } catch (error) {
       if (
@@ -192,6 +192,20 @@ export class UsersService {
         profile: { select: { username: true, image: true } },
       },
     });
+  }
+
+  async updateRole(userId: string, role: Role): Promise<User> {
+    try {
+      const user = await this.prismaService.user.update({
+        data: { role },
+        where: { id: userId },
+      });
+      return user;
+    } catch (error) {
+      throw new BadRequestException(
+        error.meta?.cause ? 'user does not exist' : error.message,
+      );
+    }
   }
 
   // ----------------------------------------------------------------

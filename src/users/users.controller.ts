@@ -7,6 +7,7 @@ import {
   Get,
   NotFoundException,
   Param,
+  ParseEnumPipe,
   Patch,
   Post,
   Query,
@@ -14,6 +15,7 @@ import {
   UseGuards,
   ValidationPipe,
 } from '@nestjs/common';
+import { Role } from '@prisma/client';
 import { isAlphanumeric, isEmail } from 'class-validator';
 import { comparePwd, generateToken } from 'src/helpers/security';
 import { AppResponse } from 'src/utils/_http_response';
@@ -23,7 +25,7 @@ import { LoginUserDto } from './dto/login-user.dto';
 import { UpdateProfileDto } from './dto/update-profile.dto';
 import { VerifyUserDto } from './dto/verify-user.dto';
 import { AuthUser } from './users.decorator';
-import { IsAdmin } from './users.guard';
+import { IsAdmin, IsSuperAdmin } from './users.guard';
 import { UsersService } from './users.service';
 
 @Controller({ path: 'users', version: '1' })
@@ -99,10 +101,10 @@ export class UsersController {
         !email ? 'Email is required' : 'Invalid email',
       );
     }
-    const user = await this.usersService.resendOTP(email);
+    await this.usersService.resendOTP(email);
     return {
       message: 'Email resent successfully',
-      data: user || email,
+      data: email,
     };
   }
 
@@ -114,6 +116,19 @@ export class UsersController {
       message: 'Users retrieved successfully',
       count: users.length,
       data: users,
+    };
+  }
+
+  @Patch('role/:id')
+  @UseGuards(IsSuperAdmin)
+  async changeRole(
+    @Param('id') userId: string,
+    @Query('role', new ParseEnumPipe(Role)) role: Role,
+  ): Promise<AppResponse> {
+    const user = await this.usersService.updateRole(userId, role);
+    return {
+      message: 'User role updated successfully',
+      data: user,
     };
   }
 

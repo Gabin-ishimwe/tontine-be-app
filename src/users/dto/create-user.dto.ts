@@ -1,10 +1,7 @@
-import { Role } from '@prisma/client';
 import {
   IsAlpha,
   IsDefined,
   IsEmail,
-  IsEnum,
-  IsOptional,
   IsPhoneNumber,
   IsStrongPassword,
   Length,
@@ -35,8 +32,4 @@ export class CreateUserDto {
   @IsAlpha()
   @IsDefined({ message: 'last name required' })
   lastName: string;
-
-  @IsEnum(['USER', 'ADMIN'])
-  @IsOptional()
-  role?: Role;
 }

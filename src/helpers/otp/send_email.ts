@@ -48,7 +48,7 @@ const sendEmail = ({
     if (error) {
       console.log('OTP: Email service not working,', email, error.message);
     } else {
-      console.log('OTP: email sent,', email);
+      console.log('OTP: email sent,', email, otp);
       deleteOtpTask(email, undefined).start();
     }
   });
