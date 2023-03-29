@@ -47,6 +47,11 @@ export class PoolController {
     return this.poolService.updatePool(id, updatePoolDto);
   }
 
+  @Post(':id')
+  generateInviteCode(@Param('id', ParseUUIDPipe) id: string) {
+    return this.poolService.poolInvitationCode(id);
+  }
+
   @Delete(':id')
   deleteOnePool(@Param('id', ParseUUIDPipe) id: string) {
     return this.poolService.deleteOnePool(id);
