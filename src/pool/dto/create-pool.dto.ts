@@ -41,10 +41,8 @@ export class CreatePoolDto {
   @IsEnum(TimeType)
   sprintTimeType: TimeType;
 
-  // @IsDateString()
-  @IsString()
   @IsOptional()
-  cycleTime: string;
+  cycleTime: number;
 
   @IsString()
   @IsOptional()
@@ -58,5 +56,11 @@ export class CreatePoolDto {
 
   @IsDateString()
   @IsNotEmpty()
-  expectedStartTime: string;
+  expectedTimeStart: string;
+
+  @IsOptional()
+  inviteCode: number;
+
+  @IsOptional()
+  createdBy: string;
 }

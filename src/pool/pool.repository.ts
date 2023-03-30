@@ -27,7 +27,31 @@ export class PoolRepository {
 
   async updateOnePool(id: string, data: any) {
     try {
-      return await this.prismaService.pools.update({ where: { id }, data });
+      return await this.prismaService.pools.update({
+        where: { id },
+        data,
+      });
+    } catch (error) {
+      return new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
+
+  async activatePool(
+    id: string,
+    data: { cycleTime: number; cycleTimeType: string; isActive: boolean },
+  ) {
+    try {
+      return await this.prismaService.pools.update({
+        where: { id },
+        data: {
+          ...data,
+          wallet: {
+            update: {
+              isActive: true,
+            },
+          },
+        },
+      });
     } catch (error) {
       return new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
     }
@@ -37,9 +61,27 @@ export class PoolRepository {
     try {
       const data = await this.prismaService.pools.findUnique({
         where: { id },
-        include: { wallet: true, invitedMembers: true, members: true },
+        include: { wallet: true, poolMembers: true, createdByUser: true },
       });
       if (!data) return new NotFoundException({ message: 'Pool not found' });
+
+      return data;
+    } catch (error) {
+      return new HttpException(error.message, HttpStatus.NOT_FOUND);
+    }
+  }
+
+  async findByInviteCode(code: number): Promise<any> {
+    try {
+      const data = await this.prismaService.pools.findFirst({
+        where: {
+          inviteCode: code,
+        },
+      });
+      if (!data)
+        return new NotFoundException({
+          message: `Pool with invite code ${code} code not found`,
+        });
 
       return data;
     } catch (error) {
@@ -50,7 +92,7 @@ export class PoolRepository {
   async findAllPool() {
     try {
       return await this.prismaService.pools.findMany({
-        include: { wallet: true, members: true, invitedMembers: true },
+        include: { wallet: true, poolMembers: true, createdByUser: true },
       });
     } catch (error) {
       return new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);

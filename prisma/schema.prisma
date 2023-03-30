@@ -10,7 +10,6 @@ datasource db {
 // User Model
 model User {
   id           String           @id @default(uuid())
-  bank         Bank?
   email        String           @unique
   password     String
   phone        String
@@ -20,6 +19,7 @@ model User {
   createdAt    DateTime         @default(now())
   updatedAt    DateTime         @updatedAt
   profile      Profile?
+  bank         Bank?
   tempOTP      TempOTP?
   membership   PoolMembership[]
   createdPools Pools[]
@@ -87,10 +87,10 @@ model Pools {
   amountPerSprint      Int
   sprintTime           Int // contribution time
   sprintTimeType       String
-  cycleTime            String? // Withdrawal time
+  cycleTime            Int? // Withdrawal time
   cycleTimeType        String?
   numberOfParticipants Int              @default(3)
-  expectedTimeStart    DateTime? // time to start the pool
+  expectedTimeStart    String? // time to start the pool
   inviteCode           Int? // invite code to join pool
   isActive             Boolean          @default(false)
   createdAt            DateTime         @default(now())

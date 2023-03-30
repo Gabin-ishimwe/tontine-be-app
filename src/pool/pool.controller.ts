@@ -4,10 +4,14 @@ import {
   Delete,
   Get,
   Param,
+  ParseIntPipe,
   ParseUUIDPipe,
   Patch,
   Post,
 } from '@nestjs/common';
+import { UseGuards } from '@nestjs/common/decorators/core/use-guards.decorator';
+import { AuthUser } from 'src/users/users.decorator';
+import { AuthGuard } from 'src/users/users.guard';
 import { CreatePoolDto } from './dto/create-pool.dto';
 import { UpdatePoolDto } from './dto/update-pool.dto';
 import { PoolService } from './pool.service';
@@ -16,12 +20,13 @@ import { PoolService } from './pool.service';
   path: 'pool',
   version: '1',
 })
+@UseGuards(AuthGuard)
 export class PoolController {
   constructor(private readonly poolService: PoolService) {}
 
   @Post()
-  create(@Body() createPoolDto: CreatePoolDto) {
-    return this.poolService.create(createPoolDto);
+  create(@Body() createPoolDto: CreatePoolDto, @AuthUser() id: string) {
+    return this.poolService.create(createPoolDto, id);
   }
 
   @Post('/activate/:id')
@@ -43,13 +48,25 @@ export class PoolController {
   updatePool(
     @Param('id', ParseUUIDPipe) id: string,
     @Body() updatePoolDto: UpdatePoolDto,
+    @AuthUser() userId: string,
   ) {
-    return this.poolService.updatePool(id, updatePoolDto);
+    return this.poolService.updatePool(id, userId, updatePoolDto);
   }
 
-  @Post(':id')
-  generateInviteCode(@Param('id', ParseUUIDPipe) id: string) {
-    return this.poolService.poolInvitationCode(id);
+  @Post('/inviteCode/:id')
+  generateInviteCode(
+    @Param('id', ParseUUIDPipe) id: string,
+    @AuthUser() userId: string,
+  ) {
+    return this.poolService.poolInvitationCode(id, userId);
+  }
+
+  @Post('/joinRequest/:code')
+  requestJoinPool(
+    @AuthUser() userId: string,
+    @Param('code', ParseIntPipe) code: number,
+  ) {
+    return this.poolService.requestToJoin(code, userId);
   }
 
   @Delete(':id')
