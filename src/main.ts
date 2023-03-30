@@ -1,7 +1,12 @@
 import { RequestMethod, ValidationPipe, VersioningType } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { config } from 'dotenv';
 import { AppModule } from './app.module';
+
+config();
+
+const PORT = process.env.PORT || 3000;
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -30,6 +35,9 @@ async function bootstrap() {
    */
   app.enableVersioning({ type: VersioningType.URI });
 
-  await app.listen(3000);
+  //Starting server
+  await app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}🔥`);
+  });
 }
 bootstrap();

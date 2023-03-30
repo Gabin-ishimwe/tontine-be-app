@@ -8,21 +8,80 @@ datasource db {
 }
 
 // User Model
-model Users {
-  id           String       @id @default(uuid())
-  username     String
-  createdAt    DateTime     @default(now())
-  updatedAt    DateTime     @updatedAt
-  // pool      Pools            @relation(fields: [poolId], references: [id])
-  // poolId    String
-  membership      PoolMembership[]
+model User {
+  id           String           @id @default(uuid())
+  bank         Bank?
+  email        String           @unique
+  password     String
+  phone        String
+  verified     Boolean          @default(false)
+  role         Role             @default(USER)
+  status       Status           @default(ACTIVE)
+  createdAt    DateTime         @default(now())
+  updatedAt    DateTime         @updatedAt
+  profile      Profile?
+  tempOTP      TempOTP?
+  membership   PoolMembership[]
   createdPools Pools[]
 }
 
+enum Role {
+  USER
+  ADMIN
+  SUPER_ADMIN
+}
+
+enum Status {
+  ACTIVE
+  BANNED
+  DELETED
+}
+
+model Bank {
+  id        String   @id @default(uuid())
+  firstName String
+  lastName  String
+  balance   Float    @default(0.0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  User      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String   @unique
+}
+
+model Profile {
+  id        String   @id @default(uuid())
+  username  String   @unique @db.VarChar(20)
+  image     String?
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String   @unique
+  about     String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model TempOTP {
+  id        String   @id @default(uuid())
+  user      User     @relation(fields: [email], references: [email], onDelete: Cascade)
+  email     String   @unique
+  otp       Int
+  createdAt DateTime @default(now())
+}
+
+// model Users {
+//   id           String       @id @default(uuid())
+//   username     String
+//   createdAt    DateTime     @default(now())
+//   updatedAt    DateTime     @updatedAt
+//   // pool      Pools            @relation(fields: [poolId], references: [id])
+//   // poolId    String
+//   membership      PoolMembership[]
+//   createdPools Pools[]
+// }
+
 // Pool Model
 model Pools {
-  id                   String        @id @default(uuid())
-  title                String        @unique
+  id                   String           @id @default(uuid())
+  title                String           @unique
   description          String
   category             String
   amountPerSprint      Int
@@ -30,16 +89,16 @@ model Pools {
   sprintTimeType       String
   cycleTime            String? // Withdrawal time
   cycleTimeType        String?
-  numberOfParticipants Int           @default(3)
+  numberOfParticipants Int              @default(3)
   expectedTimeStart    DateTime? // time to start the pool
   inviteCode           Int? // invite code to join pool
-  isActive             Boolean       @default(false)
-  createdAt            DateTime      @default(now())
-  updatedAt            DateTime      @updatedAt
+  isActive             Boolean          @default(false)
+  createdAt            DateTime         @default(now())
+  updatedAt            DateTime         @updatedAt
   wallet               Wallets?
   // members              Users[] // accepted members
   poolMembers          PoolMembership[]
-  createdByUser        Users         @relation(fields: [createdBy], references: [id], onDelete: Cascade)
+  createdByUser        User             @relation(fields: [createdBy], references: [id], onDelete: Cascade)
   createdBy            String
 
   @@index([id, title])
@@ -62,7 +121,7 @@ model Wallets {
 model PoolMembership {
   id       String        @id @unique @default(uuid())
   status   InvitedStatus @default(PENDING)
-  member   Users         @relation(fields: [memberId], references: [id], onDelete: Cascade)
+  member   User          @relation(fields: [memberId], references: [id], onDelete: Cascade)
   memberId String        @unique
   pool     Pools         @relation(fields: [poolId], references: [id], onDelete: Cascade)
   poolId   String
