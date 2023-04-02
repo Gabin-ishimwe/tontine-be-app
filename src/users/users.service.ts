@@ -75,7 +75,7 @@ export class UsersService {
     }
   }
 
-  async deleteOTP(email: string): Promise<Boolean> {
+  async deleteOTP(email: string): Promise<boolean> {
     try {
       await this.prismaService.tempOTP.delete({ where: { email } });
       return true;

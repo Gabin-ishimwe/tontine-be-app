@@ -10,6 +10,32 @@ import { Role } from '@prisma/client';
 import { Observable } from 'rxjs';
 import { verifyToken } from 'src/helpers/security';
 
+// Jwt Guard
+@Injectable()
+export class AuthGuard implements CanActivate {
+  canActivate(
+    context: ExecutionContext,
+  ): boolean | Promise<boolean> | Observable<boolean> {
+    const request = context.switchToHttp().getRequest();
+    const token = this.extractTokenFromHeader(request);
+    if (!token) {
+      new UnauthorizedException('Unauthorized action');
+    }
+    try {
+      const payload = verifyToken(token);
+      request['user'] = payload;
+    } catch (error) {
+      throw new UnauthorizedException('Unauthorized action');
+    }
+    return true;
+  }
+
+  private extractTokenFromHeader(request: Request): string | undefined {
+    const [type, token] = request.headers['authorization']?.split(' ') ?? [];
+    return type === 'Bearer' ? token : undefined;
+  }
+}
+
 //Checking if user is an admin
 @Injectable()
 export class IsAdmin implements CanActivate {

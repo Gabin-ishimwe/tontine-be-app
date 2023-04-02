@@ -12,7 +12,7 @@ export const otpCron = (user: {
 }) => {
   return cron.schedule(afterOneSec(), async function job() {
     //Generating OTP
-    const uniqueOTP: number = Number(
+    const uniqueOTP = Number(
       generate(4, {
         digits: true,
         upperCaseAlphabets: false,

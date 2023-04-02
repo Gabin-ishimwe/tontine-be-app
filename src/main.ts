@@ -10,7 +10,10 @@ const PORT = process.env.PORT || 3000;
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  app.useGlobalPipes(new ValidationPipe());
+
+  // global validation
+  app.useGlobalPipes(new ValidationPipe({ whitelist: true }));
+
   // Swagger Doc configuration
   const config = new DocumentBuilder()
     .setTitle('Tontino BE Documentation')

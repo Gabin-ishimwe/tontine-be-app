@@ -7,19 +7,22 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+// User Model
 model User {
-  id        String   @id @default(uuid())
-  bank      Bank?
-  email     String   @unique
-  password  String
-  phone     String
-  verified  Boolean  @default(false)
-  role      Role     @default(USER)
-  status    Status   @default(ACTIVE)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  profile   Profile?
-  tempOTP   TempOTP?
+  id           String           @id @default(uuid())
+  email        String           @unique
+  password     String
+  phone        String
+  verified     Boolean          @default(false)
+  role         Role             @default(USER)
+  status       Status           @default(ACTIVE)
+  createdAt    DateTime         @default(now())
+  updatedAt    DateTime         @updatedAt
+  profile      Profile?
+  bank         Bank?
+  tempOTP      TempOTP?
+  membership   PoolMembership[]
+  createdPools Pools[]
 }
 
 enum Role {
@@ -62,4 +65,70 @@ model TempOTP {
   email     String   @unique
   otp       Int
   createdAt DateTime @default(now())
+}
+
+// model Users {
+//   id           String       @id @default(uuid())
+//   username     String
+//   createdAt    DateTime     @default(now())
+//   updatedAt    DateTime     @updatedAt
+//   // pool      Pools            @relation(fields: [poolId], references: [id])
+//   // poolId    String
+//   membership      PoolMembership[]
+//   createdPools Pools[]
+// }
+
+// Pool Model
+model Pools {
+  id                   String           @id @default(uuid())
+  title                String           @unique
+  description          String
+  category             String
+  amountPerSprint      Int
+  sprintTime           Int // contribution time
+  sprintTimeType       String
+  cycleTime            Int? // Withdrawal time
+  cycleTimeType        String?
+  numberOfParticipants Int              @default(3)
+  expectedTimeStart    String? // time to start the pool
+  inviteCode           Int? // invite code to join pool
+  isActive             Boolean          @default(false)
+  createdAt            DateTime         @default(now())
+  updatedAt            DateTime         @updatedAt
+  wallet               Wallets?
+  // members              Users[] // accepted members
+  poolMembers          PoolMembership[]
+  createdByUser        User             @relation(fields: [createdBy], references: [id], onDelete: Cascade)
+  createdBy            String
+
+  @@index([id, title])
+}
+
+// Wallet Model
+model Wallets {
+  accountNumber String   @id @unique @default(uuid())
+  isActive      Boolean  @default(false)
+  amount        Int
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  pool          Pools    @relation(fields: [poolId], references: [id], onDelete: Cascade)
+  poolId        String   @unique
+
+  @@index([accountNumber])
+}
+
+// PoolMembers Model
+model PoolMembership {
+  id       String        @id @unique @default(uuid())
+  status   InvitedStatus @default(PENDING)
+  member   User          @relation(fields: [memberId], references: [id], onDelete: Cascade)
+  memberId String        @unique
+  pool     Pools         @relation(fields: [poolId], references: [id], onDelete: Cascade)
+  poolId   String
+}
+
+enum InvitedStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
 }

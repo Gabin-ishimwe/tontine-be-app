@@ -1,4 +1,14 @@
 {
+<<<<<<< HEAD
+    "editor.formatOnSave": true,
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "eslint.format.enable": true,
+    "editor.codeActionsOnSave": {
+        "source.formatDocument": true,
+        "source.fixAll": true,
+        "source.organizeImports": true
+    }
+=======
   "editor.formatOnSave": true,
   "editor.defaultFormatter": "esbenp.prettier-vscode",
   "eslint.format.enable": true,
@@ -10,4 +20,5 @@
   "[prisma]": {
     "editor.defaultFormatter": "Prisma.prisma"
   }
+>>>>>>> main
 }
